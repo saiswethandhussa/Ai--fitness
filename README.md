@@ -227,3 +227,57 @@ Start the Java backend projects in this exact order:
     npm run dev
     ```
 4.  Access the web application at `http://localhost:5173`.
+
+---
+
+## 🐳 Running with Docker (Containerized Setup)
+
+You can run the entire microservices stack and backing databases inside Docker containers. We support a **Hybrid Mode** that integrates with your existing standalone Docker containers, and an **All-in-One Mode**.
+
+### 1. Hybrid Mode (Recommended for your current setup)
+Since you already have **Keycloak** (port `8181`) and **RabbitMQ** (port `5672`/`15672`) containers running in Docker Desktop:
+
+1.  **Start Databases**: Spin up the PostgreSQL and MongoDB containers:
+    ```bash
+    docker-compose up -d postgres mongodb
+    ```
+2.  **Start Microservices & Frontend**:
+    Run the rest of the services. Make sure you set your Gemini API key in your environment first:
+    *   **Windows (PowerShell)**:
+        ```powershell
+        $env:GEMINI_API_KEY="your_actual_api_key"
+        docker-compose up --build -d config-server eureka-server user-service activity-service ai-service api-gateway fitness-app-frontend
+        ```
+    *   **Linux / macOS (Bash)**:
+        ```bash
+        export GEMINI_API_KEY="your_actual_api_key"
+        docker-compose up --build -d config-server eureka-server user-service activity-service ai-service api-gateway fitness-app-frontend
+        ```
+
+Inside Docker, the microservices will connect to your host's Keycloak and RabbitMQ instances using `host.docker.internal`.
+
+### 2. Standalone All-in-One Mode
+If you prefer to manage Keycloak and RabbitMQ through this `docker-compose.yml` instead of keeping them standalone:
+1.  **Stop Existing Containers**: Stop your running `nervous_vaughan` and `rabbitmq` containers.
+2.  **Add Services to compose**: Uncomment or add the Keycloak and RabbitMQ services to the `docker-compose.yml`.
+3.  **Run All**:
+    ```bash
+    docker-compose up --build -d
+    ```
+
+---
+
+### Docker Command Reference
+
+*   **Check container status**:
+    ```bash
+    docker-compose ps
+    ```
+*   **View live logs (e.g. for AI service)**:
+    ```bash
+    docker-compose logs -f ai-service
+    ```
+*   **Stop the stack**:
+    ```bash
+    docker-compose down
+    ```
