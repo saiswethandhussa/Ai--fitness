@@ -180,12 +180,19 @@ sequenceDiagram
 
 To start the system locally, spin up the supporting infrastructure and services in the following order.
 
-### Phase 1: Infrastructure
+### Phase 1: Infrastructure (Databases & Dockerized Components)
 Make sure your backing services are up and running:
 1.  **PostgreSQL**: Start your local instance. Create database `fitness_user_db`.
 2.  **MongoDB**: Start your local instance (port `27017`).
-3.  **RabbitMQ**: Start your local broker (port `5672`).
-4.  **Keycloak**: Run Keycloak on port `8181`. Import/Configure the realm `fitness-oauth2` and client `oauth2-pkce-client`.
+3.  **RabbitMQ (Hosted in Docker)**: Start the RabbitMQ container (with Management console) on ports `5672` (AMQP) and `15672` (UI dashboard):
+    ```bash
+    docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:4-management
+    ```
+4.  **Keycloak (Hosted in Docker)**: Run the Keycloak container on port `8181` mapped to the default keycloak port `8080`:
+    ```bash
+    docker run -d --name keycloak -p 8181:8080 -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:22.0.1 start-dev
+    ```
+    *Note: Once running, access the Keycloak admin panel at `http://localhost:8181`, log in, import/configure the realm `fitness-oauth2`, and add the client `oauth2-pkce-client`.*
 
 ### Phase 2: Core Spring Boot Services
 Start the Java backend projects in this exact order:
